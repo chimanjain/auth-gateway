@@ -6,13 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v89/github"
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	errUnableToRetrieveLatestVersion = errors.New("unable to fetch the latest version from GitHub")
-)
+var errUnableToRetrieveLatestVersion = errors.New("unable to fetch the latest version from GitHub")
 
 // Version defines the version for the binary, this is actually set by GoReleaser.
 var Version = "main"
@@ -40,7 +38,7 @@ func CheckLatest() {
 
 func getLatestFromGitHub() (string, error) {
 	fmt.Print("checking latest version... ")
-	c := github.NewClient(nil)
+	c, _ := github.NewClient(nil)
 	repoRelease, resp, err := c.Repositories.GetLatestRelease(context.Background(), "cortexproject", "auth-gateway")
 	if err != nil {
 		log.WithFields(log.Fields{"err": err}).Debugln("error while retrieving the latest version")
@@ -52,5 +50,5 @@ func getLatestFromGitHub() (string, error) {
 		return "", errUnableToRetrieveLatestVersion
 	}
 
-	return *repoRelease.TagName, nil
+	return repoRelease.GetTagName(), nil
 }
